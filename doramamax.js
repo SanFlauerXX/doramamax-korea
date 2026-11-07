@@ -1,133 +1,128 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.2.1
- * @description Каталог южнокорейских сериалов.
- * Только каталог TMDB, без видеоплееров и торрентов.
+ * @version 1.3.0
+ * @description Каталог южнокорейских сериалов для Lampa.
+ * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_plugin_loaded) return;
-    window.dorama_max_plugin_loaded = true;
+    if (window.dorama_max_130_ready) return;
+    window.dorama_max_130_ready = true;
 
-    var ENTRY_ID = 'dorama_max_entry';
-    var pluginName = 'DORAMA MAX';
+    var PLUGIN_NAME = 'DORAMA MAX';
+    var SETTINGS_COMPONENT = 'dorama_max';
+    var SETTINGS_BUTTON = 'dorama_max_open_catalog';
+    var MENU_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M4 3h16v18H4zM7 6v12h10V6z"/></svg>';
 
     function dateString(date) {
-        var y = date.getFullYear();
-        var m = ('0' + (date.getMonth() + 1)).slice(-2);
-        var d = ('0' + date.getDate()).slice(-2);
-        return y + '-' + m + '-' + d;
+        var year = date.getFullYear();
+        var month = ('0' + (date.getMonth() + 1)).slice(-2);
+        var day = ('0' + date.getDate()).slice(-2);
+        return year + '-' + month + '-' + day;
     }
 
-    function getCategories() {
+    function categories() {
         var today = new Date();
-        var past = new Date();
-        past.setFullYear(past.getFullYear() - 1);
+        var from = new Date();
+        from.setFullYear(from.getFullYear() - 1);
+
+        var korea = {
+            with_original_language: 'ko',
+            with_origin_country: 'KR'
+        };
 
         return [
             {
                 title: 'Новинки',
                 sort_by: 'first_air_date.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
-                    'first_air_date.gte': dateString(past),
+                filter: Object.assign({}, korea, {
+                    'first_air_date.gte': dateString(from),
                     'first_air_date.lte': dateString(today)
-                }
+                })
             },
             {
                 title: 'Популярные',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR'
-                }
+                filter: Object.assign({}, korea)
             },
             {
                 title: 'Школьные банды и драки',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
+                filter: Object.assign({}, korea, {
                     with_genres: '18',
                     with_keywords: '10873'
-                }
+                })
             },
             {
                 title: 'Криминал',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
+                filter: Object.assign({}, korea, {
                     with_genres: '80'
-                }
+                })
             },
             {
                 title: 'Месть',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
+                filter: Object.assign({}, korea, {
                     with_keywords: '9748'
-                }
+                })
             },
             {
                 title: 'Экшен',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
+                filter: Object.assign({}, korea, {
                     with_genres: '10759'
-                }
+                })
             },
             {
                 title: 'Романтика',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
-                    with_genres: '10749'
-                }
+                filter: Object.assign({}, korea, {
+                    with_genres: '18',
+                    with_keywords: '9840'
+                })
             },
             {
                 title: 'Триллеры и детективы',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
+                filter: Object.assign({}, korea, {
                     with_genres: '9648'
-                }
+                })
             },
             {
                 title: 'Мистика и фантастика',
                 sort_by: 'popularity.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
+                filter: Object.assign({}, korea, {
                     with_genres: '10765'
-                }
+                })
             },
             {
                 title: 'Лучшие дорамы',
                 sort_by: 'vote_average.desc',
-                filter: {
-                    with_original_language: 'ko',
-                    with_origin_country: 'KR',
+                filter: Object.assign({}, korea, {
                     'vote_count.gte': '100'
-                }
+                })
             }
         ];
+    }
+
+    function currentController() {
+        try {
+            var active = Lampa.Controller.enabled();
+            return active && active.name ? active.name : 'content';
+        } catch (error) {
+            return 'content';
+        }
     }
 
     function openCategory(category) {
         Lampa.Activity.push({
             url: 'discover/tv',
-            title: pluginName + ' — ' + category.title,
+            title: PLUGIN_NAME + ' — ' + category.title,
             component: 'category_full',
             source: 'tmdb',
-            card_type: true,
             page: 1,
             sort_by: category.sort_by,
             filter: category.filter
@@ -135,26 +130,23 @@
     }
 
     function openSearch() {
-        var controller = Lampa.Controller.enabled().name;
-
+        var returnController = currentController();
         Lampa.Input.edit({
-            title: 'Поиск корейской дорамы',
+            title: 'Поиск корейского сериала',
             value: '',
             free: true
         }, function (query) {
             query = String(query || '').trim();
-
             if (!query) {
-                Lampa.Controller.toggle(controller);
+                Lampa.Controller.toggle(returnController);
                 return;
             }
 
             Lampa.Activity.push({
                 url: 'search/tv',
-                title: pluginName + ' — ' + query,
+                title: PLUGIN_NAME + ' — ' + query,
                 component: 'category_full',
                 source: 'tmdb',
-                card_type: true,
                 page: 1,
                 query: encodeURIComponent(query),
                 filter: {
@@ -166,93 +158,77 @@
     }
 
     function openCatalog() {
-        var controller = Lampa.Controller.enabled().name;
-        var categories = getCategories();
-
-        var items = categories.map(function (category) {
-            return {
-                title: category.title,
-                category: category
-            };
-        });
-
-        items.push({
-            title: 'Поиск корейской дорамы',
-            search: true
-        });
+        var returnController = currentController();
+        var items = categories();
+        items.push({ title: 'Поиск корейских сериалов', search: true });
 
         Lampa.Select.show({
-            title: pluginName,
+            title: PLUGIN_NAME,
             items: items,
-            onBack: function () {
-                Lampa.Controller.toggle(controller);
-            },
             onSelect: function (item) {
-                if (item.search) {
-                    openSearch();
-                } else if (item.category) {
-                    openCategory(item.category);
-                }
+                Lampa.Select.close();
+                if (item.search) openSearch();
+                else openCategory(item);
+            },
+            onBack: function () {
+                Lampa.Controller.toggle(returnController);
             }
         });
     }
 
-    function addSettingsEntry() {
-        if (!Lampa.Settings || !Lampa.Settings.main) return;
+    function registerSettings() {
+        if (!Lampa.SettingsApi) return;
 
-        var settings = Lampa.Settings.main();
-        var render = settings.render();
-
-        if (render.find('[data-component="' + ENTRY_ID + '"]').length) return;
-
-        var more = render.find('[data-component="more"]').first();
-        if (!more.length) return;
-
-        var field = $(
-            '<div class="settings-param selector" data-component="' + ENTRY_ID + '">' +
-                '<div class="settings-param__name">' + pluginName + '</div>' +
-                '<div class="settings-param__descr">Каталог южнокорейских сериалов</div>' +
-            '</div>'
-        );
-
-        more.after(field);
-        settings.update();
-    }
-
-    function startPlugin() {
-        if (window.dorama_max_initialized) return;
-        window.dorama_max_initialized = true;
-
-        if (!window.Lampa || !Lampa.Settings ||
-            !Lampa.Select || !Lampa.Activity) return;
-
-        addSettingsEntry();
-
-        Lampa.Settings.listener.follow('open', function (event) {
-            if (event.name !== 'main') return;
-
-            var field = event.body.find(
-                '[data-component="' + ENTRY_ID + '"]'
-            );
-
-            if (field.length && !field.data('dmax-bound')) {
-                field.data('dmax-bound', true);
-                field.on('hover:enter', openCatalog);
-            }
+        Lampa.SettingsApi.addComponent({
+            component: SETTINGS_COMPONENT,
+            name: PLUGIN_NAME,
+            icon: MENU_ICON
         });
 
-        if (Lampa.Noty && Lampa.Noty.show) {
-            Lampa.Noty.show(pluginName + ' подключён');
+        Lampa.SettingsApi.addParam({
+            component: SETTINGS_COMPONENT,
+            param: {
+                name: SETTINGS_BUTTON,
+                type: 'button'
+            },
+            field: {
+                name: 'Открыть каталог',
+                description: 'Новинки, популярные и жанры корейских дорам'
+            },
+            onChange: openCatalog
+        });
+    }
+
+    function registerMenu() {
+        if (Lampa.Menu && typeof Lampa.Menu.addButton === 'function') {
+            Lampa.Menu.addButton(MENU_ICON, PLUGIN_NAME, openCatalog);
+        } else {
+            var menu = $('.menu .menu__list').eq(0);
+            if (!menu.length) return;
+            var button = $('<li class="menu__item selector"><div class="menu__ico">' + MENU_ICON + '</div><div class="menu__text"></div></li>');
+            button.find('.menu__text').text(PLUGIN_NAME);
+            button.on('hover:enter', openCatalog);
+            menu.append(button);
         }
     }
 
-    if (window.appready) {
-        startPlugin();
-    } else if (window.Lampa &&
-               Lampa.Listener &&
-               Lampa.Listener.follow) {
+    function init() {
+        if (!window.Lampa || !Lampa.Activity || !Lampa.Select) return;
+        try {
+            registerSettings();
+            registerMenu();
+            console.log('[DORAMA MAX] plugin initialized');
+            if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show(PLUGIN_NAME + ' подключён');
+        } catch (error) {
+            console.error('[DORAMA MAX] initialization error', error);
+            if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show('DORAMA MAX: ошибка запуска');
+        }
+    }
+
+    if (window.appready) init();
+    else if (window.Lampa && Lampa.Listener && Lampa.Listener.follow) {
         Lampa.Listener.follow('app', function (event) {
-            if (event.type === 'ready') startPlugin();
+            if (event.type === 'ready') init();
         });
     }
 })();
