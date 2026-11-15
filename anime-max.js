@@ -14,6 +14,7 @@
     var PLUGIN_NAME = 'ANIME MAX';
     var SETTINGS_COMPONENT = 'anime_max';
     var MENU_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M4 3h16v18H4zM7 6v12h10V6zM9 8l6 4-6 4z"/></svg>';
+    var SEARCH_ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>';
 
     function dateString(date) {
         var year = date.getFullYear();
@@ -165,6 +166,12 @@
         });
     }
 
+    function registerSearchMenu() {
+        if (Lampa.Menu && typeof Lampa.Menu.addButton === 'function') {
+            Lampa.Menu.addButton(SEARCH_ICON, 'Поиск аниме', openSearch);
+        }
+    }
+
     function registerMenu() {
         if (Lampa.Menu && typeof Lampa.Menu.addButton === 'function') {
             Lampa.Menu.addButton(MENU_ICON, PLUGIN_NAME, openCatalog);
@@ -191,6 +198,7 @@
         }
         try {
             registerMenu();
+            registerSearchMenu();
             initialized = true;
         } catch (menuError) {
             console.error('[ANIME MAX] menu registration error', menuError);
