@@ -1,14 +1,14 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.3.0
- * @description Каталог южнокорейских сериалов для Lampa.
+ * @version 1.4.0
+ * @description Каталог южнокорейских дорам и фильмов для Lampa.
  * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_130_ready) return;
+    if (window.dorama_max_140_ready) return;
     window.dorama_max_130_ready = true;
 
     var PLUGIN_NAME = 'DORAMA MAX';
@@ -104,6 +104,76 @@
                 filter: Object.assign({}, korea, {
                     'vote_count.gte': '100'
                 })
+            },
+            // Южнокорейские полнометражные фильмы
+            {
+                title: 'ФИЛЬМЫ ЮЖНОЙ КОРЕИ',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea)
+            },
+            {
+                title: 'Новинки кино',
+                media_type: 'movie',
+                sort_by: 'primary_release_date.desc',
+                filter: Object.assign({}, korea, {
+                    'primary_release_date.gte': dateString(from),
+                    'primary_release_date.lte': dateString(today)
+                })
+            },
+            {
+                title: 'Боевики',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '28' })
+            },
+            {
+                title: 'Криминальные фильмы',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '80' })
+            },
+            {
+                title: 'Триллеры и детективы — кино',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '53,9648' })
+            },
+            {
+                title: 'Фильмы о мести',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '28,80,53' })
+            },
+            {
+                title: 'Драмы',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '18' })
+            },
+            {
+                title: 'Романтические фильмы',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '10749' })
+            },
+            {
+                title: 'Фантастика и фэнтези — кино',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '878,14' })
+            },
+            {
+                title: 'Комедии',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, { with_genres: '35' })
+            },
+            {
+                title: 'Лучшие корейские фильмы',
+                media_type: 'movie',
+                sort_by: 'vote_average.desc',
+                filter: Object.assign({}, korea, { 'vote_count.gte': '100' })
             }
         ];
     }
@@ -119,7 +189,7 @@
 
     function openCategory(category) {
         Lampa.Activity.push({
-            url: 'discover/tv',
+            url: 'discover/' + (category.media_type || 'tv'),
             title: PLUGIN_NAME + ' — ' + category.title,
             component: 'category_full',
             source: 'tmdb',
@@ -129,10 +199,10 @@
         });
     }
 
-    function openSearch() {
+    function openSearch(mediaType) {
         var returnController = currentController();
         Lampa.Input.edit({
-            title: 'Поиск корейского сериала',
+            title: mediaType === 'movie' ? 'Поиск корейского фильма' : 'Поиск корейского сериала',
             value: '',
             free: true
         }, function (query) {
@@ -143,7 +213,7 @@
             }
 
             Lampa.Activity.push({
-                url: 'search/tv',
+                url: 'search/' + (mediaType || 'tv'),
                 title: PLUGIN_NAME + ' — ' + query,
                 component: 'category_full',
                 source: 'tmdb',
@@ -160,14 +230,15 @@
     function openCatalog() {
         var returnController = currentController();
         var items = categories();
-        items.push({ title: 'Поиск корейских сериалов', search: true });
+        items.push({ title: 'Поиск корейских сериалов', search: true, media_type: 'tv' });
+        items.push({ title: 'Поиск корейских фильмов', search: true, media_type: 'movie' });
 
         Lampa.Select.show({
             title: PLUGIN_NAME,
             items: items,
             onSelect: function (item) {
                 Lampa.Select.close();
-                if (item.search) openSearch();
+                if (item.search) openSearch(item.media_type);
                 else openCategory(item);
             },
             onBack: function () {
@@ -193,7 +264,7 @@
             },
             field: {
                 name: 'Открыть каталог',
-                description: 'Новинки, популярные и жанры корейских дорам'
+                description: 'Корейские сериалы и полнометражные фильмы по жанрам'
             },
             onChange: openCatalog
         });
