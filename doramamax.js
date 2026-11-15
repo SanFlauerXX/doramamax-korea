@@ -1,15 +1,15 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.7.0
+ * @version 1.7.1
  * @description Каталог южнокорейских дорам и фильмов для Lampa.
  * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_170_ready) return;
-    window.dorama_max_160_ready = true;
+    if (window.dorama_max_171_ready) return;
+    window.dorama_max_171_ready = true;
 
     var PLUGIN_NAME = 'DORAMA MAX';
     var SETTINGS_COMPONENT = 'dorama_max';
