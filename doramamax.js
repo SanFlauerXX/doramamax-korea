@@ -1,14 +1,14 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.6.0
+ * @version 1.7.0
  * @description Каталог южнокорейских дорам и фильмов для Lampa.
  * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_160_ready) return;
+    if (window.dorama_max_170_ready) return;
     window.dorama_max_160_ready = true;
 
     var PLUGIN_NAME = 'DORAMA MAX';
@@ -118,107 +118,12 @@
                     'vote_count.gte': '100'
                 })
             },
-            // Южнокорейские полнометражные фильмы
+            // Единая категория южнокорейских полнометражных фильмов
             {
-                title: 'ФИЛЬМЫ ЮЖНОЙ КОРЕИ',
+                title: 'Фильмы',
                 media_type: 'movie',
                 sort_by: 'popularity.desc',
                 filter: Object.assign({}, korea)
-            },
-            {
-                title: 'Школьные драки и противостояния — кино',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, {
-                    with_genres: '18,28'
-                })
-            },
-            {
-                title: 'Буллинг и школьная травля — кино',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, {
-                    with_genres: '18,53'
-                })
-            },
-            {
-                title: 'Уличные банды и криминал — кино',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, {
-                    with_genres: '28,80'
-                })
-            },
-            {
-                title: 'Криминальные разборки — кино',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, {
-                    with_genres: '80,53'
-                })
-            },
-            {
-                title: 'Новинки кино',
-                media_type: 'movie',
-                sort_by: 'primary_release_date.desc',
-                filter: Object.assign({}, korea, {
-                    'primary_release_date.gte': dateString(from),
-                    'primary_release_date.lte': dateString(today)
-                })
-            },
-            {
-                title: 'Боевики',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '28' })
-            },
-            {
-                title: 'Криминальные фильмы',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '80' })
-            },
-            {
-                title: 'Триллеры и детективы — кино',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '53,9648' })
-            },
-            {
-                title: 'Фильмы о мести',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '28,80,53' })
-            },
-            {
-                title: 'Драмы',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '18' })
-            },
-            {
-                title: 'Романтические фильмы',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '10749' })
-            },
-            {
-                title: 'Фантастика и фэнтези — кино',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '878,14' })
-            },
-            {
-                title: 'Комедии',
-                media_type: 'movie',
-                sort_by: 'popularity.desc',
-                filter: Object.assign({}, korea, { with_genres: '35' })
-            },
-            {
-                title: 'Лучшие корейские фильмы',
-                media_type: 'movie',
-                sort_by: 'vote_average.desc',
-                filter: Object.assign({}, korea, { 'vote_count.gte': '100' })
             }
         ];
     }
@@ -272,44 +177,23 @@
         });
     }
 
-    function openMediaCatalog(mediaType) {
+    function openCatalog() {
         var returnController = currentController();
-        var items = categories().filter(function (item) {
-            return (item.media_type || 'tv') === mediaType;
-        });
+        var items = categories();
 
         items.push({
-            title: mediaType === 'movie' ? 'Поиск корейских фильмов' : 'Поиск корейских сериалов',
+            title: 'Поиск корейских сериалов',
             search: true,
-            media_type: mediaType
+            media_type: 'tv'
         });
 
         Lampa.Select.show({
-            title: PLUGIN_NAME + (mediaType === 'movie' ? ' — ФИЛЬМЫ' : ' — СЕРИАЛЫ'),
+            title: PLUGIN_NAME,
             items: items,
             onSelect: function (item) {
                 Lampa.Select.close();
                 if (item.search) openSearch(item.media_type);
                 else openCategory(item);
-            },
-            onBack: function () {
-                Lampa.Controller.toggle(returnController);
-            }
-        });
-    }
-
-    function openCatalog() {
-        var returnController = currentController();
-
-        Lampa.Select.show({
-            title: PLUGIN_NAME,
-            items: [
-                { title: 'СЕРИАЛЫ', media_type: 'tv' },
-                { title: 'ФИЛЬМЫ', media_type: 'movie' }
-            ],
-            onSelect: function (item) {
-                Lampa.Select.close();
-                openMediaCatalog(item.media_type);
             },
             onBack: function () {
                 Lampa.Controller.toggle(returnController);
