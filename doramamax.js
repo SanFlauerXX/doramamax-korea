@@ -1,15 +1,15 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.4.0
+ * @version 1.4.1
  * @description Каталог южнокорейских дорам и фильмов для Lampa.
  * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_140_ready) return;
-    window.dorama_max_130_ready = true;
+    if (window.dorama_max_141_ready) return;
+    window.dorama_max_141_ready = true;
 
     var PLUGIN_NAME = 'DORAMA MAX';
     var SETTINGS_COMPONENT = 'dorama_max';
@@ -111,6 +111,14 @@
                 media_type: 'movie',
                 sort_by: 'popularity.desc',
                 filter: Object.assign({}, korea)
+            },
+            {
+                title: 'Школьные банды и драки — кино',
+                media_type: 'movie',
+                sort_by: 'popularity.desc',
+                filter: Object.assign({}, korea, {
+                    with_keywords: '10873'
+                })
             },
             {
                 title: 'Новинки кино',
