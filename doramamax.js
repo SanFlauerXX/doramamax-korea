@@ -9,7 +9,7 @@
     'use strict';
 
     if (window.dorama_max_150_ready) return;
-    window.dorama_max_141_ready = true;
+    window.dorama_max_150_ready = true;
 
     var PLUGIN_NAME = 'DORAMA MAX';
     var SETTINGS_COMPONENT = 'dorama_max';
