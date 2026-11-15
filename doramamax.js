@@ -1,15 +1,14 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.7.1
+ * @version 1.7.2
  * @description Каталог южнокорейских дорам и фильмов для Lampa.
  * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_171_ready) return;
-    window.dorama_max_171_ready = true;
+    if (window.dorama_max_172_ready) return;
 
     var PLUGIN_NAME = 'DORAMA MAX';
     var SETTINGS_COMPONENT = 'dorama_max';
@@ -238,20 +237,38 @@
     }
 
     function init() {
-        if (!window.Lampa || !Lampa.Activity || !Lampa.Select) return;
+        // Не отмечаем плагин запущенным, пока Lampa действительно не готова.
+        // Иначе ранняя загрузка скрипта навсегда блокирует повторную инициализацию.
+        if (!window.Lampa || !Lampa.Activity || !Lampa.Select) return false;
+        if (window.dorama_max_172_ready) return true;
+
+        var initialized = false;
         try {
             registerSettings();
+            initialized = true;
+        } catch (settingsError) {
+            console.error('[DORAMA MAX] settings registration error', settingsError);
+        }
+        try {
             registerMenu();
+            initialized = true;
+        } catch (menuError) {
+            console.error('[DORAMA MAX] menu registration error', menuError);
+        }
+
+        if (initialized) {
+            window.dorama_max_172_ready = true;
             console.log('[DORAMA MAX] plugin initialized');
             if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show(PLUGIN_NAME + ' подключён');
-        } catch (error) {
-            console.error('[DORAMA MAX] initialization error', error);
-            if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show('DORAMA MAX: ошибка запуска');
+            return true;
         }
+        return false;
     }
 
+    // Проверяем готовность сразу и подписываемся на событие ready независимо
+    // от текущего appready: это покрывает оба порядка загрузки плагинов и Lampa.
     if (window.appready) init();
-    else if (window.Lampa && Lampa.Listener && Lampa.Listener.follow) {
+    if (window.Lampa && Lampa.Listener && Lampa.Listener.follow) {
         Lampa.Listener.follow('app', function (event) {
             if (event.type === 'ready') init();
         });
