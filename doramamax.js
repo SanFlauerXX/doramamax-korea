@@ -1,14 +1,14 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.7.2
+ * @version 1.7.3
  * @description Каталог южнокорейских дорам и фильмов для Lampa.
  * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_172_ready) return;
+    if (window.dorama_max_173_ready) return;
 
     var PLUGIN_NAME = 'DORAMA MAX';
     var SETTINGS_COMPONENT = 'dorama_max';
@@ -25,7 +25,9 @@
     function categories() {
         var today = new Date();
         var from = new Date();
-        from.setFullYear(from.getFullYear() - 1);
+        // Берём достаточно широкий период, чтобы категория не оказывалась пустой
+        // при задержках обновления каталога TMDB.
+        from.setFullYear(from.getFullYear() - 3);
 
         var korea = {
             with_original_language: 'ko',
@@ -35,10 +37,12 @@
         return [
             {
                 title: 'Новинки',
+                media_type: 'tv',
                 sort_by: 'first_air_date.desc',
                 filter: Object.assign({}, korea, {
                     'first_air_date.gte': dateString(from),
-                    'first_air_date.lte': dateString(today)
+                    'first_air_date.lte': dateString(today),
+                    include_null_first_air_dates: false
                 })
             },
             {
@@ -240,7 +244,7 @@
         // Не отмечаем плагин запущенным, пока Lampa действительно не готова.
         // Иначе ранняя загрузка скрипта навсегда блокирует повторную инициализацию.
         if (!window.Lampa || !Lampa.Activity || !Lampa.Select) return false;
-        if (window.dorama_max_172_ready) return true;
+        if (window.dorama_max_173_ready) return true;
 
         var initialized = false;
         try {
@@ -257,7 +261,7 @@
         }
 
         if (initialized) {
-            window.dorama_max_172_ready = true;
+            window.dorama_max_173_ready = true;
             console.log('[DORAMA MAX] plugin initialized');
             if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show(PLUGIN_NAME + ' подключён');
             return true;
