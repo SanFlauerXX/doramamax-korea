@@ -1,15 +1,15 @@
 /*
  * @name DORAMA MAX
  * @author SanFlauerXX
- * @version 1.5.0
+ * @version 1.6.0
  * @description Каталог южнокорейских дорам и фильмов для Lampa.
  * Каталог и метаданные TMDB; не является видеоплеером или источником видео.
  */
 (function () {
     'use strict';
 
-    if (window.dorama_max_150_ready) return;
-    window.dorama_max_150_ready = true;
+    if (window.dorama_max_160_ready) return;
+    window.dorama_max_160_ready = true;
 
     var PLUGIN_NAME = 'DORAMA MAX';
     var SETTINGS_COMPONENT = 'dorama_max';
@@ -272,19 +272,44 @@
         });
     }
 
-    function openCatalog() {
+    function openMediaCatalog(mediaType) {
         var returnController = currentController();
-        var items = categories();
-        items.push({ title: 'Поиск корейских сериалов', search: true, media_type: 'tv' });
-        items.push({ title: 'Поиск корейских фильмов', search: true, media_type: 'movie' });
+        var items = categories().filter(function (item) {
+            return (item.media_type || 'tv') === mediaType;
+        });
+
+        items.push({
+            title: mediaType === 'movie' ? 'Поиск корейских фильмов' : 'Поиск корейских сериалов',
+            search: true,
+            media_type: mediaType
+        });
 
         Lampa.Select.show({
-            title: PLUGIN_NAME,
+            title: PLUGIN_NAME + (mediaType === 'movie' ? ' — ФИЛЬМЫ' : ' — СЕРИАЛЫ'),
             items: items,
             onSelect: function (item) {
                 Lampa.Select.close();
                 if (item.search) openSearch(item.media_type);
                 else openCategory(item);
+            },
+            onBack: function () {
+                Lampa.Controller.toggle(returnController);
+            }
+        });
+    }
+
+    function openCatalog() {
+        var returnController = currentController();
+
+        Lampa.Select.show({
+            title: PLUGIN_NAME,
+            items: [
+                { title: 'СЕРИАЛЫ', media_type: 'tv' },
+                { title: 'ФИЛЬМЫ', media_type: 'movie' }
+            ],
+            onSelect: function (item) {
+                Lampa.Select.close();
+                openMediaCatalog(item.media_type);
             },
             onBack: function () {
                 Lampa.Controller.toggle(returnController);
