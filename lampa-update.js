@@ -110,6 +110,13 @@
             if (notes) message += '\n\nИзменения:\n' + notes;
         }
 
+        if (silent) {
+            if (relation > 0 && Lampa.Noty && Lampa.Noty.show) {
+                Lampa.Noty.show('Доступна новая версия LAMPA: ' + latest);
+            }
+            return;
+        }
+
         if (Lampa.Modal && Lampa.Modal.open) {
             var html = $('<div class="about" style="padding:1em;line-height:1.5;white-space:pre-wrap;"></div>').text(message);
             Lampa.Modal.open({
@@ -141,9 +148,6 @@
             Lampa.Noty.show(message);
         }
 
-        if (silent && relation > 0 && Lampa.Noty && Lampa.Noty.show) {
-            Lampa.Noty.show('Доступна новая версия LAMPA: ' + latest);
-        }
     }
 
     function checkUpdates(silent) {
@@ -160,7 +164,7 @@
             try { Lampa.Storage.set(CHECK_TIME_KEY, Date.now()); } catch (e) {}
             showRelease(release, silent);
         }, function () {
-            if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show('Проверка не удалась. Проверь подключение к интернету.');
+            if (!silent && Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show('Проверка не удалась. Проверь подключение к интернету.');
         }, false, {
             dataType: 'json',
             headers: { 'Accept': 'application/vnd.github+json' }
