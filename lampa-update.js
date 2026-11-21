@@ -132,7 +132,7 @@
                         }
                     },
                     {
-                        name: 'Скачать APK',
+                        name: 'Обновить LAMPA',
                         onSelect: function () {
                             Lampa.Modal.close();
                             openLink(APK_URL);
